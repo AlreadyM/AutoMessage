@@ -1,0 +1,19 @@
+## Interface: 11320
+## Version: 0.1
+## Title: AutoMessage
+## Author: chunhua
+## Notes: send msg and invite player
+## SavedVariables: AutoMessageDB
+## OptionalDeps: Ace3
+## X-Embeds: Ace3
+
+AutoMessage.xml
+
+#Locale Translations
+#Locals\Local.xml
+
+# core
+AutoMessage.lua
+
+# register to TitanPannel
+LDBplugin.lua
