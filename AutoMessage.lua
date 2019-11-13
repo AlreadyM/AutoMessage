@@ -453,18 +453,35 @@ local function DrawGroup_message(container)
     container:AddChild(select_channel_two)
     container:AddChild(select_channel_threee)
 
+    local send_all = AceGUI:Create("Button")
+    send_all:SetHeight(40)
+    send_all:SetText(MyAddon.L['send all'])
+    send_all:SetRelativeWidth(0.5)
+    send_all:SetCallback(
+        "OnClick",
+        function(wideget, event)
+            MyAddon.db.profile.message.one.send_status,
+                MyAddon.db.profile.message.two.send_status,
+                MyAddon.db.profile.message.three.send_status = true,true,true
+                    send_btn:SetText("|cff00FF33"..MyAddon.L['stop'])
+                    prepare_send('one')   
+                    prepare_send('two')   
+                    prepare_send('three')   
+            MyAddon:Print(string.upper("one two three") .. "|cffffffff ■■"..MyAddon.L['all send'].."■■")
+        end
+    )
+    container:AddChild(send_all)
     local stop_btn = AceGUI:Create("Button")
-    -- stop_btn:SetText("|cff00FF33停止")
-    stop_btn:SetFullWidth(true)
-    stop_btn:SetHeight(30)
+    -- stop_btn:SetFullWidth(true)
+    stop_btn:SetHeight(40)
     stop_btn:SetText(MyAddon.L['stop all'])
-    -- stop_btn:SetRelativeWidth(0.25)
+    stop_btn:SetRelativeWidth(0.5)
     stop_btn:SetCallback(
         "OnClick",
         function(wideget, event)
             MyAddon.db.profile.message.one.send_status,
                 MyAddon.db.profile.message.two.send_status,
-                MyAddon.db.profile.message.three.send_status = false
+                MyAddon.db.profile.message.three.send_status = false,false,false
             -- MyAddon:Destory()
             Main_frame:Hide()
             MyAddon:initTabs()
@@ -809,7 +826,9 @@ function MyAddon:Locale( _local )
         -- btn
         L['send'] = '发送'
         L['stop'] = '停止'
+        L['send all'] = '发送所有'
         L['stop all'] = '停止所有'
+        L['all send']= '都已发送'
         L['all stoped']= '都已停止'
         L['reload ui'] = '重载界面'
         L['join channel'] = '加入大脚世界频道1-4'
@@ -843,8 +862,10 @@ function MyAddon:Locale( _local )
         --btn
         L['send'] = 'Send'
         L['stop'] = 'Stop'
-        L['stop all'] = 'stop all'
-        L['all stoped']= 'Already stoped all'
+        L['send all'] = 'Send All'
+        L['stop all'] = 'Stop All'
+        L['all send']= 'Already Send All'
+        L['all stoped']= 'Already Stoped All'
         L['reload ui'] = 'Reload Ui'
         L['join channel'] = 'join channel bigfoot one2four'
         L['status'] = 'by reminiscence service 狮心·拾忆重逢 @20191028'
