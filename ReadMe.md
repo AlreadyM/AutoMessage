@@ -1,3 +1,4 @@
+这是一个魔兽世界自动喊话界面版插件，目的是为了方便组队的时候间隔时间发送组队信息至公共频道。
 AutoMessage Plugin Use Guide
 ZN-CH
     功能介绍：
