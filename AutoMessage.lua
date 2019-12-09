@@ -1,4 +1,5 @@
-MyAddon = LibStub("AceAddon-3.0"):NewAddon("AutoMessage", "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0")
+MyAddon = LibStub("AceAddon-3.0"):NewAddon("AutoMessage", "AceConsole-3.0",
+                                           "AceEvent-3.0", "AceTimer-3.0")
 
 MyAddon.L = {}
 MyAddon.width = 423
@@ -56,30 +57,15 @@ local defaults = {
             }
         },
         template = {
-            one = {
-                title = "模板一",
-                content = "模板内容1 自行更换"
-            },
-            two = {
-                title = "模板二",
-                content = "模板内容2 自行更换"
-            },
+            one = {title = "模板一", content = "模板内容1 自行更换"},
+            two = {title = "模板二", content = "模板内容2 自行更换"},
             three = {
                 title = "模板三",
                 content = "模板内容3 自行更换"
             },
-            four = {
-                title = "模板四",
-                content = "模板内容4 自行更换"
-            },
-            five = {
-                title = "模板五",
-                content = "模板内容5 自行更换"
-            },
-            six = {
-                title = "模板六",
-                content = "模板内容6 自行更换"
-            },
+            four = {title = "模板四", content = "模板内容4 自行更换"},
+            five = {title = "模板五", content = "模板内容5 自行更换"},
+            six = {title = "模板六", content = "模板内容6 自行更换"},
             seven = {
                 title = "模板七",
                 content = "模板内容7 自行更换"
@@ -88,34 +74,33 @@ local defaults = {
                 title = "模板八",
                 content = "模板内容8 自行更换"
             },
-            nine = {
-                title = "模板九",
-                content = "模板内容9 自行更换"
-            }
+            nine = {title = "模板九", content = "模板内容9 自行更换"}
         },
         money_raid_calculate = {
             money = 1550,
             person_base = 14,
             person = 1,
+            adjust = false,
+            adjust_person = 1,
             rl = true,
             rl_percent = 0.5,
             rl_money = 50,
             reward_percent = 0.2,
             reward_count = 30,
             reward_remain = 70,
-            one_money_count = 100
+            one_money_count = 100,
+            send_channel_money = 1
         }
     }
 }
 function MyAddon:OnInitialize()
     MyAddon.L = MyAddon:Locale(GetLocale())
-    --MyAddon.L = MyAddon:Locale("enUS")
+    -- MyAddon.L = MyAddon:Locale("enUS")
     self:Print(MyAddon.L["Announce"])
 
     MyAddon.db = LibStub("AceDB-3.0"):New("AutoMessageDB", defaults, true)
-    MyAddon.db.profile.message.one.send_status,
-        MyAddon.db.profile.message.two.send_status,
-        MyAddon.db.profile.message.three.send_status = false
+    MyAddon.db.profile.message.one.send_status, MyAddon.db.profile.message.two
+    .send_status, MyAddon.db.profile.message.three.send_status = false
     MyAddon:RegisterChatCommand("am", "ChatCommand")
     MyAddon:RegisterChatCommand("automessage", "ChatCommand")
     MyAddon:RegisterChatCommand("automsg", "ChatCommand")
@@ -131,14 +116,11 @@ function GetJoinedChannels()
     local channels = {}
     local chanList = {GetChannelList()}
     for i = 1, #chanList, 3 do
-        table.insert(
-            channels,
-            {
-                id = chanList[i],
-                name = chanList[i + 1],
-                isDisabled = chanList[i + 2] -- Not sure what a state of "blocked" would be
-            }
-        )
+        table.insert(channels, {
+            id = chanList[i],
+            name = chanList[i + 1],
+            isDisabled = chanList[i + 2] -- Not sure what a state of "blocked" would be
+        })
     end
     return channels
 end
@@ -193,9 +175,15 @@ local function prepare_send(sender)
         local say = MyAddon.db.profile.message[_sender].send_channels.say -- 说话
         local guild = MyAddon.db.profile.message[_sender].send_channels.guild -- 工会
         local raid = MyAddon.db.profile.message[_sender].send_channels.raid -- 团队
-        local channel_one = MyAddon.channel_id[MyAddon.db.profile.message[_sender].send_channels.channel_one] --自定义频道
-        local channel_two = MyAddon.channel_id[MyAddon.db.profile.message[_sender].send_channels.channel_two] --自定义频道
-        local channel_three = MyAddon.channel_id[MyAddon.db.profile.message[_sender].send_channels.channel_three] --自定义频道
+        local channel_one =
+            MyAddon.channel_id[MyAddon.db.profile.message[_sender].send_channels
+                .channel_one] -- 自定义频道
+        local channel_two =
+            MyAddon.channel_id[MyAddon.db.profile.message[_sender].send_channels
+                .channel_two] -- 自定义频道
+        local channel_three =
+            MyAddon.channel_id[MyAddon.db.profile.message[_sender].send_channels
+                .channel_three] -- 自定义频道
         -- MyAddon:Print("yell")
         -- MyAddon:Print(yell)
         -- MyAddon:Print("say")
@@ -226,10 +214,10 @@ local function prepare_send(sender)
         if raid then -- 团队
             SendChatMessage(send_content, "RAID")
         end
-        if channel_one ~= 999 then --自选频道1
+        if channel_one ~= 999 then -- 自选频道1
             SendChatMessage(send_content, "CHANNEL", nil, channel_one)
         end
-        if channel_two ~= 999 then --自选频道2
+        if channel_two ~= 999 then -- 自选频道2
             SendChatMessage(send_content, "CHANNEL", nil, channel_two)
         end
         if channel_three ~= 999 then -- 自选频道3
@@ -237,12 +225,8 @@ local function prepare_send(sender)
         end
         -- MyAddon:Print("发送结束")
         -- MyAddon:Print("send_time")
-        MyAddon:ScheduleTimer(
-            function()
-                prepare_send(MyAddon[_sender])
-            end,
-            send_time
-        )
+        MyAddon:ScheduleTimer(function() prepare_send(MyAddon[_sender]) end,
+                              send_time)
     end
 end
 -- draw sender wideget
@@ -283,7 +267,7 @@ end
 local function checkbox_render(_val, _label, _callback)
     local wideget = AceGUI:Create("CheckBox")
     wideget:SetType("checkbox")
-    --wideget:SetWidth(42)
+    -- wideget:SetWidth(42)
     wideget:SetRelativeWidth(0.125)
     wideget:SetValue(_val)
     wideget:SetLabel(_label)
@@ -291,20 +275,18 @@ local function checkbox_render(_val, _label, _callback)
     return wideget
 end
 
-local function editbox_render(_width, _label, _current_template, _address, _callback)
+local function editbox_render(_width, _label, _current_template, _address,
+                              _callback)
     local wideget = AceGUI:Create("EditBox")
     wideget:SetLabel(_label)
     wideget:SetText(MyAddon.db.profile.template[_current_template][_address])
     wideget:SetRelativeWidth(_width)
     wideget:SetHeight(45)
-    wideget:SetCallback(
-        "OnTextChanged",
-        function(widget, event, txt)
-            -- body
-            MyAddon.db.profile.template[_current_template][_address] = txt
-            -- MyAddon:Print(MyAddon.db.profile.template[_current_template][_address])
-        end
-    )
+    wideget:SetCallback("OnTextChanged", function(widget, event, txt)
+        -- body
+        MyAddon.db.profile.template[_current_template][_address] = txt
+        -- MyAddon:Print(MyAddon.db.profile.template[_current_template][_address])
+    end)
     return wideget
 end
 
@@ -326,13 +308,11 @@ local function DrawGroup_message(container)
     -- time_range:SetWidth(100)
     time_range:SetRelativeWidth(0.5)
     time_range:SetSliderValues(5, 70, 5)
-    time_range:SetValue(MyAddon.db.profile.message[MyAddon.current_sender].send_time)
-    time_range:SetCallback(
-        "OnValueChanged",
-        function(wideget, event, val)
-            MyAddon.db.profile.message[MyAddon.current_sender].send_time = val
-        end
-    )
+    time_range:SetValue(MyAddon.db.profile.message[MyAddon.current_sender]
+                            .send_time)
+    time_range:SetCallback("OnValueChanged", function(wideget, event, val)
+        MyAddon.db.profile.message[MyAddon.current_sender].send_time = val
+    end)
 
     container:AddChild(time_range)
     local pre_sender = MyAddon.current_sender
@@ -345,123 +325,112 @@ local function DrawGroup_message(container)
         send_btn:SetText(MyAddon.L["send"])
     end
     send_btn:SetRelativeWidth(0.2)
-    send_btn:SetCallback(
-        "OnClick",
-        function(wideget, event)
-            local sender = MyAddon.current_sender
-            local status = MyAddon.db.profile.message[sender].send_status -- 状态
-            if not status then
-                MyAddon.db.profile.message[sender].send_status = true
-                wideget:SetText("|cff00FF33" .. MyAddon.L["stop"])
-                MyAddon:Print(string.upper(sender) .. " |cff00A310" .. MyAddon.L["send"] .. "中....")
-                prepare_send(sender)
-            else
-                wideget:SetText(MyAddon.L["send"])
-                MyAddon.db.profile.message[sender].send_status = false
-                MyAddon:Print(string.upper(sender) .. "|cffC70000 ■■" .. MyAddon.L["stop"] .. "■■")
-            end
+    send_btn:SetCallback("OnClick", function(wideget, event)
+        local sender = MyAddon.current_sender
+        local status = MyAddon.db.profile.message[sender].send_status -- 状态
+        if not status then
+            MyAddon.db.profile.message[sender].send_status = true
+            wideget:SetText("|cff00FF33" .. MyAddon.L["stop"])
+            MyAddon:Print(string.upper(sender) .. " |cff00A310" ..
+                              MyAddon.L["send"] .. "中....")
+            prepare_send(sender)
+        else
+            wideget:SetText(MyAddon.L["send"])
+            MyAddon.db.profile.message[sender].send_status = false
+            MyAddon:Print(string.upper(sender) .. "|cffC70000 ■■" ..
+                              MyAddon.L["stop"] .. "■■")
         end
-    )
+    end)
     container:AddChild(send_btn)
     local tmplate_tmp = MyAddon.db.profile.template
-    local send_template = MyAddon.db.profile.message[MyAddon.current_sender].send_template
-    local txt_template_select =
-        dropdown_template_render(
-        send_template,
-        tmplate_tmp[number_2_string(send_template)].title,
-        MyAddon.L["template"] .. MyAddon.L["choose"],
-        {
-            tmplate_tmp.one.title,
-            tmplate_tmp.two.title,
-            tmplate_tmp.three.title,
-            tmplate_tmp.four.title,
-            tmplate_tmp.five.title,
-            tmplate_tmp.six.title,
-            tmplate_tmp.seven.title,
-            tmplate_tmp.eight.title,
-            tmplate_tmp.nine.title
-        },
-        function(wideget, event, val)
-            MyAddon:Print(MyAddon.L["selected template "] .. val)
-            MyAddon.db.profile.message[MyAddon.current_sender].send_template = val
-        end,
-        0.3
-    )
+    local send_template = MyAddon.db.profile.message[MyAddon.current_sender]
+                              .send_template
+    local txt_template_select = dropdown_template_render(send_template,
+                                                         tmplate_tmp[number_2_string(
+                                                             send_template)]
+                                                             .title,
+                                                         MyAddon.L["template"] ..
+                                                             MyAddon.L["choose"],
+                                                         {
+        tmplate_tmp.one.title, tmplate_tmp.two.title, tmplate_tmp.three.title,
+        tmplate_tmp.four.title, tmplate_tmp.five.title, tmplate_tmp.six.title,
+        tmplate_tmp.seven.title, tmplate_tmp.eight.title, tmplate_tmp.nine.title
+    }, function(wideget, event, val)
+        MyAddon:Print(MyAddon.L["selected template "] .. val)
+        MyAddon.db.profile.message[MyAddon.current_sender].send_template = val
+    end, 0.3)
     container:AddChild(txt_template_select)
 
     local function checkbox_callback(wideget, event, val)
         -- MyAddon:Print(val)
-        MyAddon.db.profile.message[MyAddon.current_sender].send_channels.yell = val
+        MyAddon.db.profile.message[MyAddon.current_sender].send_channels.yell =
+            val
     end
 
-    local yell =
-        checkbox_render(
-        MyAddon.db.profile.message[MyAddon.current_sender].send_channels.yell,
-        "|cffFF1919" .. MyAddon.L["Yell"],
-        function(wideget, event, val)
-            MyAddon.db.profile.message[MyAddon.current_sender].send_channels.yell = val
-        end
-    )
-    local say =
-        checkbox_render(
-        MyAddon.db.profile.message[MyAddon.current_sender].send_channels.say,
-        MyAddon.L["Say"],
-        function(wideget, event, val)
-            MyAddon.db.profile.message[MyAddon.current_sender].send_channels.say = val
-        end
-    )
-    local guild =
-        checkbox_render(
-        MyAddon.db.profile.message[MyAddon.current_sender].send_channels.guild,
-        "|cff1CFF24" .. MyAddon.L["Guild"],
-        function(wideget, event, val)
-            MyAddon.db.profile.message[MyAddon.current_sender].send_channels.guild = val
-        end
-    )
-    local raid =
-        checkbox_render(
-        MyAddon.db.profile.message[MyAddon.current_sender].send_channels.raid,
-        "|cffFF7C0A" .. MyAddon.L["Raid"],
-        function(wideget, event, val)
-            MyAddon.db.profile.message[MyAddon.current_sender].send_channels.raid = val
-        end
-    )
+    local yell = checkbox_render(
+                         MyAddon.db.profile.message[MyAddon.current_sender]
+                             .send_channels.yell,
+                         "|cffFF1919" .. MyAddon.L["Yell"],
+                         function(wideget, event, val)
+                MyAddon.db.profile.message[MyAddon.current_sender].send_channels
+                .yell = val
+            end)
+    local say = checkbox_render(
+                    MyAddon.db.profile.message[MyAddon.current_sender]
+                        .send_channels.say, MyAddon.L["Say"],
+                    function(wideget, event, val)
+            MyAddon.db.profile.message[MyAddon.current_sender].send_channels.say =
+                val
+        end)
+    local guild = checkbox_render(
+                          MyAddon.db.profile.message[MyAddon.current_sender]
+                              .send_channels.guild,
+                          "|cff1CFF24" .. MyAddon.L["Guild"],
+                          function(wideget, event, val)
+                MyAddon.db.profile.message[MyAddon.current_sender].send_channels
+                .guild = val
+            end)
+    local raid = checkbox_render(
+                         MyAddon.db.profile.message[MyAddon.current_sender]
+                             .send_channels.raid,
+                         "|cffFF7C0A" .. MyAddon.L["Raid"],
+                         function(wideget, event, val)
+                MyAddon.db.profile.message[MyAddon.current_sender].send_channels
+                .raid = val
+            end)
     container:AddChild(yell)
     container:AddChild(say)
     container:AddChild(guild)
     container:AddChild(raid)
 
-    local select_channel_one =
-        dropdown_render(
-        MyAddon.db.profile.message[MyAddon.current_sender].send_channels.channel_one,
-        MyAddon.L["Channel select one"],
-        MyAddon.channel_name,
-        function(wideget, event, val)
-            MyAddon.db.profile.message[MyAddon.current_sender].send_channels.channel_one = val
-        end,
-        0.5
-    )
-    local select_channel_two =
-        dropdown_render(
-        MyAddon.db.profile.message[MyAddon.current_sender].send_channels.channel_two,
-        MyAddon.L["Channel select two"],
-        MyAddon.channel_name,
-        function(wideget, event, val)
-            MyAddon.db.profile.message[MyAddon.current_sender].send_channels.channel_two = val
-        end,
-        0.5
-    )
-    local select_channel_threee =
-        dropdown_render(
-        MyAddon.db.profile.message[MyAddon.current_sender].send_channels.channel_three,
-        MyAddon.L["Channel select three"],
-        -- {"|cff00A310未选", 1, 2, 3, 4, 5, 6, 7, 8, 9},
-        MyAddon.channel_name,
-        function(wideget, event, val)
-            MyAddon.db.profile.message[MyAddon.current_sender].send_channels.channel_three = val
-        end,
-        0.5
-    )
+    local select_channel_one = dropdown_render(
+                                       MyAddon.db.profile.message[MyAddon.current_sender]
+                                           .send_channels.channel_one,
+                                       MyAddon.L["Channel select one"],
+                                       MyAddon.channel_name,
+                                       function(wideget, event, val)
+                MyAddon.db.profile.message[MyAddon.current_sender].send_channels
+                .channel_one = val
+            end, 0.5)
+    local select_channel_two = dropdown_render(
+                                       MyAddon.db.profile.message[MyAddon.current_sender]
+                                           .send_channels.channel_two,
+                                       MyAddon.L["Channel select two"],
+                                       MyAddon.channel_name,
+                                       function(wideget, event, val)
+                MyAddon.db.profile.message[MyAddon.current_sender].send_channels
+                .channel_two = val
+            end, 0.5)
+    local select_channel_threee = dropdown_render(
+                                          MyAddon.db.profile.message[MyAddon.current_sender]
+                                              .send_channels.channel_three,
+                                          MyAddon.L["Channel select three"],
+            -- {"|cff00A310未选", 1, 2, 3, 4, 5, 6, 7, 8, 9},
+                                          MyAddon.channel_name,
+                                          function(wideget, event, val)
+                MyAddon.db.profile.message[MyAddon.current_sender].send_channels
+                .channel_three = val
+            end, 0.5)
     container:AddChild(select_channel_one)
     container:AddChild(select_channel_two)
     container:AddChild(select_channel_threee)
@@ -470,60 +439,65 @@ local function DrawGroup_message(container)
     send_all:SetHeight(40)
     send_all:SetText(MyAddon.L["send all"])
     send_all:SetRelativeWidth(0.5)
-    send_all:SetCallback(
-        "OnClick",
-        function(wideget, event)
-            MyAddon.db.profile.message.one.send_status,
-                MyAddon.db.profile.message.two.send_status,
-                MyAddon.db.profile.message.three.send_status = true, true, true
+    send_all:SetCallback("OnClick", function(wideget, event)
+            MyAddon.db.profile.message.one.send_status, MyAddon.db.profile
+            .message.two.send_status, MyAddon.db.profile.message.three
+            .send_status = true, true, true
             send_btn:SetText("|cff00FF33" .. MyAddon.L["stop"])
             prepare_send("one")
             prepare_send("two")
             prepare_send("three")
-            MyAddon:Print(string.upper("one two three") .. "|cffffffff ■■" .. MyAddon.L["all send"] .. "■■")
-        end
-    )
+            MyAddon:Print(
+                string.upper("one two three") .. "|cffffffff ■■" ..
+                    MyAddon.L["all send"] .. "■■")
+        end)
     container:AddChild(send_all)
     local stop_btn = AceGUI:Create("Button")
     -- stop_btn:SetFullWidth(true)
     stop_btn:SetHeight(40)
     stop_btn:SetText(MyAddon.L["stop all"])
     stop_btn:SetRelativeWidth(0.5)
-    stop_btn:SetCallback(
-        "OnClick",
-        function(wideget, event)
-            MyAddon.db.profile.message.one.send_status,
-                MyAddon.db.profile.message.two.send_status,
-                MyAddon.db.profile.message.three.send_status = false, false, false
+    stop_btn:SetCallback("OnClick", function(wideget, event)
+            MyAddon.db.profile.message.one.send_status, MyAddon.db.profile
+            .message.two.send_status, MyAddon.db.profile.message.three
+            .send_status = false, false, false
             -- MyAddon:Destory()
             Main_frame:Hide()
             MyAddon:initTabs()
-            MyAddon:Print(string.upper("one two three") .. "|cffC70000 ■■" .. MyAddon.L["all stoped"] .. "■■")
-        end
-    )
+            MyAddon:Print(
+                string.upper("one two three") .. "|cffC70000 ■■" ..
+                    MyAddon.L["all stoped"] .. "■■")
+        end)
     container:AddChild(stop_btn)
 end
 
 function calc_one_count()
     MyAddon:Print("ssss")
-    local person = MyAddon.db.profile.money_raid_calculate.person + MyAddon.db.profile.money_raid_calculate.person_base
+    local person = MyAddon.db.profile.money_raid_calculate.person +
+                       MyAddon.db.profile.money_raid_calculate.person_base
     if MyAddon.db.profile.money_raid_calculate.rl then
-        person = person + tonumber(MyAddon.db.profile.money_raid_calculate.rl_percent)
+        person = person +
+                     tonumber(MyAddon.db.profile.money_raid_calculate.rl_percent)
+    end
+    if MyAddon.db.profile.money_raid_calculate.adjust then
+        person = person + tonumber(MyAddon.db.profile.money_raid_calculate.adjust_person/10)
     end
     local money = MyAddon.db.profile.money_raid_calculate.money
     one_money_count = money / person
     MyAddon:Print(MyAddon.db.profile.money_raid_calculate.rl_percent)
     MyAddon.db.profile.money_raid_calculate.one_money_count = one_money_count
     MyAddon.db.profile.money_raid_calculate.rl_money =
-        math.floor(one_money_count) * MyAddon.db.profile.money_raid_calculate.rl_percent
+        math.floor(one_money_count) *
+            MyAddon.db.profile.money_raid_calculate.rl_percent
     MyAddon.db.profile.money_raid_calculate.reward_count =
-        math.floor(one_money_count) * MyAddon.db.profile.money_raid_calculate.reward_percent
+        math.floor(one_money_count) *
+            MyAddon.db.profile.money_raid_calculate.reward_percent
     MyAddon.db.profile.money_raid_calculate.reward_remain =
-        math.floor(one_money_count) -
-        math.floor(one_money_count) * MyAddon.db.profile.money_raid_calculate.reward_percent
+        math.floor(one_money_count) - math.floor(one_money_count) *
+            MyAddon.db.profile.money_raid_calculate.reward_percent
 end
 
-local function Draw_invite(container)
+local function Draw_calc(container)
     calc_one_count()
     -- money_raid_calculate = {
     --     money = 500,
@@ -538,51 +512,67 @@ local function Draw_invite(container)
 
     container:ReleaseChildren()
     container:SetLayout("Flow")
-    MyAddon:Print("invite module")
+    MyAddon:Print("calc module")
 
     local money_input = AceGUI:Create("EditBox")
     money_input:SetLabel("可分配金币")
     money_input:SetText(MyAddon.db.profile.money_raid_calculate.money)
     money_input:SetRelativeWidth(0.3)
-    money_input:SetCallback(
-        "OnEnterPressed",
-        function(widget, event, txt)
-            -- body
-            MyAddon.db.profile.money_raid_calculate.money = txt
-            Draw_invite(container)
-        end
-    )
+    money_input:SetCallback("OnEnterPressed", function(widget, event, txt)
+        -- body
+        MyAddon.db.profile.money_raid_calculate.money = txt
+        Draw_calc(container)
+    end)
     container:AddChild(money_input)
 
     local person = AceGUI:Create("Dropdown")
-    person:SetRelativeWidth(0.7)
+    person:SetRelativeWidth(0.3)
     person:SetText(MyAddon.db.profile.money_raid_calculate.person + 14)
     person:SetLabel(MyAddon.L["raid person"])
     person:SetValue(MyAddon.db.profile.money_raid_calculate.person)
-    person:SetList(
-        {15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40}
-    )
-    person:SetCallback(
-        "OnValueChanged",
-        function(widget, event, txt)
-            MyAddon.db.profile.money_raid_calculate.person = txt
-            Draw_invite(container)
-        end
-    )
+    person:SetList({
+        15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32,
+        33, 34, 35, 36, 37, 38, 39, 40
+    })
+    person:SetCallback("OnValueChanged", function(widget, event, txt)
+        MyAddon.db.profile.money_raid_calculate.person = txt
+        Draw_calc(container)
+    end)
     container:AddChild(person)
+    local adjust = AceGUI:Create("CheckBox")
+    adjust:SetType("checkbox")
+    adjust:SetRelativeWidth(0.1)
+    adjust:SetLabel('')
+    adjust:SetValue(MyAddon.db.profile.money_raid_calculate.adjust)
+    adjust:SetCallback("OnValueChanged", function(widget, event, txt)
+        MyAddon.db.profile.money_raid_calculate.adjust = txt
+        Draw_calc(container)
+    end)
+    container:AddChild(adjust)
+    local adjust_person = AceGUI:Create("Dropdown")
+    adjust_person:SetRelativeWidth(0.3)
+    adjust_person:SetText(MyAddon.db.profile.money_raid_calculate.adjust_person / 10)
+    adjust_person:SetLabel("调节人数")
+    adjust_person:SetValue(MyAddon.db.profile.money_raid_calculate.adjust_person)
+    adjust_person:SetList({0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9})
+    adjust_person:SetCallback("OnValueChanged", function(widget, event, txt)
+        MyAddon.db.profile.money_raid_calculate.adjust_person = txt
+        Draw_calc(container)
+    end)
+    if not(MyAddon.db.profile.money_raid_calculate.adjust) then
+        adjust_person:SetDisabled(true)
+    end
+    container:AddChild(adjust_person)
     local raid_leader = AceGUI:Create("CheckBox")
     raid_leader:SetType("checkbox")
-    --raid_leader:SetWidth(42)
+    -- raid_leader:SetWidth(42)
     raid_leader:SetRelativeWidth(0.3)
     raid_leader:SetValue(MyAddon.db.profile.money_raid_calculate.rl)
     raid_leader:SetLabel("指挥工资")
-    raid_leader:SetCallback(
-        "OnValueChanged",
-        function(widget, event, txt)
-            MyAddon.db.profile.money_raid_calculate.rl = txt
-            Draw_invite(container)
-        end
-    )
+    raid_leader:SetCallback("OnValueChanged", function(widget, event, txt)
+        MyAddon.db.profile.money_raid_calculate.rl = txt
+        Draw_calc(container)
+    end)
     container:AddChild(raid_leader)
 
     local raid_percent = AceGUI:Create("EditBox")
@@ -594,14 +584,11 @@ local function Draw_invite(container)
     end
 
     raid_percent:SetRelativeWidth(0.4)
-    raid_percent:SetCallback(
-        "OnEnterPressed",
-        function(widget, event, txt)
-            -- body
-            MyAddon.db.profile.money_raid_calculate.rl_percent = txt
-            Draw_invite(container)
-        end
-    )
+    raid_percent:SetCallback("OnEnterPressed", function(widget, event, txt)
+        -- body
+        MyAddon.db.profile.money_raid_calculate.rl_percent = txt
+        Draw_calc(container)
+    end)
     container:AddChild(raid_percent)
 
     local raid_money = AceGUI:Create("EditBox")
@@ -613,27 +600,22 @@ local function Draw_invite(container)
         raid_money:SetText(0)
     end
     raid_money:SetRelativeWidth(0.3)
-    raid_money:SetCallback(
-        "OnTextChanged",
-        function(widget, event, txt)
-            -- body
-            MyAddon.db.profile.money_raid_calculate.rl_money = txt
-        end
-    )
+    raid_money:SetCallback("OnTextChanged", function(widget, event, txt)
+        -- body
+        MyAddon.db.profile.money_raid_calculate.rl_money = txt
+    end)
     container:AddChild(raid_money)
     -- 奖惩比例
     local reward_percent = AceGUI:Create("EditBox")
     reward_percent:SetLabel("奖惩比例")
-    reward_percent:SetText(MyAddon.db.profile.money_raid_calculate.reward_percent)
+    reward_percent:SetText(MyAddon.db.profile.money_raid_calculate
+                               .reward_percent)
     reward_percent:SetRelativeWidth(0.3)
-    reward_percent:SetCallback(
-        "OnEnterPressed",
-        function(widget, event, txt)
-            -- body
-            MyAddon.db.profile.money_raid_calculate.reward_percent = txt
-            Draw_invite(container)
-        end
-    )
+    reward_percent:SetCallback("OnEnterPressed", function(widget, event, txt)
+        -- body
+        MyAddon.db.profile.money_raid_calculate.reward_percent = txt
+        Draw_calc(container)
+    end)
 
     container:AddChild(reward_percent)
     -- 惩罚后所得
@@ -642,13 +624,10 @@ local function Draw_invite(container)
     reward_remain:SetDisabled(true)
     reward_remain:SetText(MyAddon.db.profile.money_raid_calculate.reward_remain)
     reward_remain:SetRelativeWidth(0.4)
-    reward_remain:SetCallback(
-        "OnTextChanged",
-        function(widget, event, txt)
-            -- body
-            MyAddon.db.profile.money_raid_calculate.reward_remain = txt
-        end
-    )
+    reward_remain:SetCallback("OnTextChanged", function(widget, event, txt)
+        -- body
+        MyAddon.db.profile.money_raid_calculate.reward_remain = txt
+    end)
     container:AddChild(reward_remain)
     -- 奖励所得
     local reward_count = AceGUI:Create("EditBox")
@@ -656,13 +635,10 @@ local function Draw_invite(container)
     reward_count:SetDisabled(true)
     reward_count:SetText(MyAddon.db.profile.money_raid_calculate.reward_count)
     reward_count:SetRelativeWidth(0.3)
-    reward_count:SetCallback(
-        "OnTextChanged",
-        function(widget, event, txt)
-            -- body
-            MyAddon.db.profile.money_raid_calculate.reward_count = txt
-        end
-    )
+    reward_count:SetCallback("OnTextChanged", function(widget, event, txt)
+        -- body
+        MyAddon.db.profile.money_raid_calculate.reward_count = txt
+    end)
     container:AddChild(reward_count)
     -- 一人份
     local one_count = AceGUI:Create("EditBox")
@@ -671,138 +647,179 @@ local function Draw_invite(container)
     -- one_count:SetText(calc_one_count())
     one_count:SetText(MyAddon.db.profile.money_raid_calculate.one_money_count)
     one_count:SetRelativeWidth(0.5)
-    one_count:SetCallback(
-        "OnTextChanged",
-        function(widget, event, txt)
-            -- body
-            MyAddon.db.profile.money_raid_calculate.one_money_count = txt
-        end
-    )
+    one_count:SetCallback("OnTextChanged", function(widget, event, txt)
+        -- body
+        MyAddon.db.profile.money_raid_calculate.one_money_count = txt
+    end)
     container:AddChild(one_count)
 
     -- 取整
     local integer = AceGUI:Create("EditBox")
     integer:SetLabel("取整数")
     integer:SetDisabled(true)
-    integer:SetText(math.floor(MyAddon.db.profile.money_raid_calculate.one_money_count))
+    integer:SetText(math.floor(MyAddon.db.profile.money_raid_calculate
+                                   .one_money_count))
     integer:SetRelativeWidth(0.5)
-    integer:SetCallback(
-        "OnTextChanged",
-        function(widget, event, txt)
-            -- body
-            -- MyAddon.db.profile.money_raid_calculate.reward_count = txt
-        end
-    )
+    integer:SetCallback("OnTextChanged", function(widget, event, txt)
+        -- body
+        -- MyAddon.db.profile.money_raid_calculate.reward_count = txt
+    end)
     container:AddChild(integer)
     -- 二人份
     local two_count = AceGUI:Create("EditBox")
     two_count:SetLabel("二人份")
     two_count:SetDisabled(true)
-    two_count:SetText(2 * math.floor(MyAddon.db.profile.money_raid_calculate.one_money_count))
+    two_count:SetText(2 *
+                          math.floor(MyAddon.db.profile.money_raid_calculate
+                                         .one_money_count))
     two_count:SetRelativeWidth(0.25)
-    two_count:SetCallback(
-        "OnTextChanged",
-        function(widget, event, txt)
-            -- body
-            -- MyAddon.db.profile.money_raid_calculate.reward_count = txt
-        end
-    )
+    two_count:SetCallback("OnTextChanged", function(widget, event, txt)
+        -- body
+        -- MyAddon.db.profile.money_raid_calculate.reward_count = txt
+    end)
     container:AddChild(two_count)
     -- 三人份
     local three_count = AceGUI:Create("EditBox")
     three_count:SetLabel("三人份")
     three_count:SetDisabled(true)
-    three_count:SetText(3 * math.floor(MyAddon.db.profile.money_raid_calculate.one_money_count))
+    three_count:SetText(3 *
+                            math.floor(MyAddon.db.profile.money_raid_calculate
+                                           .one_money_count))
     three_count:SetRelativeWidth(0.25)
-    three_count:SetCallback(
-        "OnTextChanged",
-        function(widget, event, txt)
-            -- body
-            -- MyAddon.db.profile.money_raid_calculate.reward_count = txt
-        end
-    )
+    three_count:SetCallback("OnTextChanged", function(widget, event, txt)
+        -- body
+        -- MyAddon.db.profile.money_raid_calculate.reward_count = txt
+    end)
     container:AddChild(three_count)
 
     -- 四人份
     local four_count = AceGUI:Create("EditBox")
     four_count:SetLabel("四人份")
     four_count:SetDisabled(true)
-    four_count:SetText(4 * math.floor(MyAddon.db.profile.money_raid_calculate.one_money_count))
+    four_count:SetText(4 *
+                           math.floor(MyAddon.db.profile.money_raid_calculate
+                                          .one_money_count))
     four_count:SetRelativeWidth(0.25)
-    four_count:SetCallback(
-        "OnTextChanged",
-        function(widget, event, txt)
-            -- body
-            -- MyAddon.db.profile.money_raid_calculate.reward_count = txt
-        end
-    )
+    four_count:SetCallback("OnTextChanged", function(widget, event, txt)
+        -- body
+        -- MyAddon.db.profile.money_raid_calculate.reward_count = txt
+    end)
     container:AddChild(four_count)
 
     -- 五人份
     local five_count = AceGUI:Create("EditBox")
     five_count:SetLabel("五人份")
     five_count:SetDisabled(true)
-    five_count:SetText(5 * math.floor(MyAddon.db.profile.money_raid_calculate.one_money_count))
+    five_count:SetText(5 *
+                           math.floor(MyAddon.db.profile.money_raid_calculate
+                                          .one_money_count))
     five_count:SetRelativeWidth(0.25)
-    five_count:SetCallback(
-        "OnTextChanged",
-        function(widget, event, txt)
-            -- body
-            -- MyAddon.db.profile.money_raid_calculate.reward_count = txt
-        end
-    )
+    five_count:SetCallback("OnTextChanged", function(widget, event, txt)
+        -- body
+        -- MyAddon.db.profile.money_raid_calculate.reward_count = txt
+    end)
     container:AddChild(five_count)
 
     -- 结果文字
+    local gap_txt = '-----------------'
+    local usr = MyAddon.L['author']
     local result_count = AceGUI:Create("EditBox")
     result_count:SetLabel("结果文字")
-    local raid_money = "团队可分配金币：" .. MyAddon.db.profile.money_raid_calculate.money
+    local raid_money = "团队可分配金币：" ..
+                           MyAddon.db.profile.money_raid_calculate.money
+    local raid_person = "团队分配人数：" 
+    local raid_person_count = 
+                            MyAddon.db.profile.money_raid_calculate.person +
+                            MyAddon.db.profile.money_raid_calculate.person_base
+    if MyAddon.db.profile.money_raid_calculate.adjust then
+        raid_person_count = raid_person_count +
+                          MyAddon.db.profile.money_raid_calculate.adjust_person / 10
+    end
     local rl_percent = "指挥多获取比例："
     local rl_money = "指挥多获得金币数量："
-    if MyAddon.db.profile.money_raid_calculate.rl then 
-        rl_percent =  rl_percent .. MyAddon.db.profile.money_raid_calculate.rl_percent 
-        rl_money =  rl_money .. MyAddon.db.profile.money_raid_calculate.rl_money
-    end 
-    local reward_percent = "团队奖惩比例：" .. MyAddon.db.profile.money_raid_calculate.reward_percent
-    local reward_remain = "惩罚后所得：" .. MyAddon.db.profile.money_raid_calculate.reward_remain
-    local reward_count = "奖励所得：" .. MyAddon.db.profile.money_raid_calculate.reward_count
-    local one_person = "每人标准所得：" .. math.floor( MyAddon.db.profile.money_raid_calculate.one_money_count )
-    local two_person = "两人标准所得：" .. 2 * math.floor( MyAddon.db.profile.money_raid_calculate.one_money_count )
-    local three_person = "三人标准所得：" .. 3 * math.floor( MyAddon.db.profile.money_raid_calculate.one_money_count )
-    local four_person = "四人标准所得：" .. 4 * math.floor( MyAddon.db.profile.money_raid_calculate.one_money_count )
-    local five_person = "五人标准所得：" .. 5 * math.floor( MyAddon.db.profile.money_raid_calculate.one_money_count )
-    local result_text = { raid_money,rl_percent,rl_money,reward_percent,reward_remain,reward_count,one_person,two_person,three_person,four_person,five_person}
-    result_count:SetText(raid_money .. rl_percent .. rl_money .. reward_percent .. reward_remain .. reward_count .. one_person .. two_person .. three_person .. four_person .. five_person)
-    result_count:SetRelativeWidth(0.7)
-    result_count:SetCallback(
-        "OnTextChanged",
-        function(widget, event, txt)
-            -- body
-            -- MyAddon.db.profile.money_raid_calculate.reward_count = txt
-        end
-    )
+    if MyAddon.db.profile.money_raid_calculate.rl then
+        rl_percent = rl_percent ..
+                         MyAddon.db.profile.money_raid_calculate.rl_percent
+        rl_money = rl_money .. MyAddon.db.profile.money_raid_calculate.rl_money
+        raid_person_count = raid_person_count +
+                          MyAddon.db.profile.money_raid_calculate.rl_percent
+    end
+    raid_person = raid_person .. raid_person_count
+    local reward_percent = "团队奖惩比例：" ..
+                               MyAddon.db.profile.money_raid_calculate
+                                   .reward_percent
+    local reward_remain = "惩罚后所得：" ..
+                              MyAddon.db.profile.money_raid_calculate
+                                  .reward_remain
+    local reward_count = "奖励所得：" ..
+                             MyAddon.db.profile.money_raid_calculate
+                                 .reward_count
+    local one_person = "每人标准所得：" ..
+                           math.floor(MyAddon.db.profile.money_raid_calculate
+                                          .one_money_count)
+    local two_person = "两人标准所得：" .. 2 *
+                           math.floor(MyAddon.db.profile.money_raid_calculate
+                                          .one_money_count)
+    local three_person = "三人标准所得：" .. 3 *
+                             math.floor(MyAddon.db.profile.money_raid_calculate
+                                            .one_money_count)
+    local four_person = "四人标准所得：" .. 4 *
+                            math.floor(MyAddon.db.profile.money_raid_calculate
+                                           .one_money_count)
+    local five_person = "五人标准所得：" .. 5 *
+                            math.floor(MyAddon.db.profile.money_raid_calculate
+                                           .one_money_count)
+    local result_text = {
+        raid_money,raid_person,
+        rl_percent, rl_money, gap_txt,
+        reward_percent, reward_remain,reward_count,gap_txt,
+        one_person, two_person, three_person, four_person, five_person,usr
+    }
+    result_count:SetText(
+        raid_money .. raid_person..rl_percent .. rl_money .. reward_percent .. reward_remain ..
+            reward_count .. one_person .. two_person .. three_person ..
+            four_person .. five_person..usr)
+    result_count:SetRelativeWidth(0.5)
+    result_count:SetCallback("OnTextChanged", function(widget, event, txt)
+        -- body
+        -- MyAddon.db.profile.money_raid_calculate.reward_count = txt
+    end)
     container:AddChild(result_count)
+    local money_channel_txt = {'说话','大喊','团队','工会'}
+    local money_channel_code = {'SAY','Yell','RAID','GUILD'}
+    local send_channel_money = AceGUI:Create("Dropdown")
+    send_channel_money:SetRelativeWidth(0.2)
+    send_channel_money:SetText(money_channel_txt[MyAddon.db.profile.money_raid_calculate.send_channel_money])
+    send_channel_money:SetLabel("发送频道")
+    send_channel_money:SetValue(MyAddon.db.profile.money_raid_calculate.send_channel_money)
+    send_channel_money:SetList(money_channel_txt)
+    send_channel_money:SetCallback("OnValueChanged", function(widget, event, txt)
+        MyAddon.db.profile.money_raid_calculate.send_channel_money = txt
+        Draw_calc(container)
+    end)
+
+    container:AddChild(send_channel_money)
 
     -- 发送结果
     local send_result = AceGUI:Create("Button")
     send_result:SetText("发送结果")
     send_result:SetRelativeWidth(0.3)
-    send_result:SetCallback(
-        "OnClick",
-        function(wideget, event)
-            for i,v in ipairs(result_text) do
-                SendChatMessage(v, "YELL")
-            end
-            
+    send_result:SetCallback("OnClick", function(wideget, event)
+        local channel_will_send = MyAddon.db.profile.money_raid_calculate.send_channel_money
+        for i, v in ipairs(result_text) do
+            SendChatMessage(v, money_channel_code[channel_will_send])
+            -- MyAddon:ScheduleTimer(function()
+            -- end, 50)
         end
-    )
+    end)
     container:AddChild(send_result)
-    local Label = AceGUI:Create("Label")
-    -- heading:SetWidth(normal_width - padding)
-    Label:SetRelativeWidth(1)
-    -- heading:SetColor(0, 120, 255)
-    Label:SetText("|cff5555ffinvite module：\n\nlearning....\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n.")
-    container:AddChild(Label)
+    -- local Label = AceGUI:Create("Label")
+    -- -- heading:SetWidth(normal_width - padding)
+    -- Label:SetRelativeWidth(1)
+    -- -- heading:SetColor(0, 120, 255)
+    -- Label:SetText(
+    --     "|cff5555ffcalc module：\n\nlearning....\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n.")
+    -- container:AddChild(Label)
 end
 
 local function DrawGroup_message_template(container)
@@ -818,12 +835,15 @@ local function DrawGroup_message_template(container)
 
     local one_content = editbox_render(0.7, "模板内容", "one", "content")
     local two_content = editbox_render(0.7, "模板内容", "two", "content")
-    local three_content = editbox_render(0.7, "模板内容", "three", "content")
+    local three_content =
+        editbox_render(0.7, "模板内容", "three", "content")
     local four_content = editbox_render(0.7, "模板内容", "four", "content")
     local five_content = editbox_render(0.7, "模板内容", "five", "content")
     local six_content = editbox_render(0.7, "模板内容", "six", "content")
-    local seven_content = editbox_render(0.7, "模板内容", "seven", "content")
-    local eight_content = editbox_render(0.7, "模板内容", "eight", "content")
+    local seven_content =
+        editbox_render(0.7, "模板内容", "seven", "content")
+    local eight_content =
+        editbox_render(0.7, "模板内容", "eight", "content")
     local nine_content = editbox_render(0.7, "模板内容", "nine", "content")
 
     container:AddChild(one_title)
@@ -858,19 +878,18 @@ local function Draw_help(container)
     -- heading:SetWidth(normal_width - padding)
     Label:SetRelativeWidth(1)
     -- heading:SetColor(0, 120, 255)
-    Label:SetText(
-        "|cff5555ff喊话功能使用介绍：\n" ..
-            "|cffffffff1、定义喊话模班，本模板旨在存储喊话内容避免每次都需要重新输入\n" ..
-                "2、设置喊话间隔时间\n" ..
-                    "3、选择喊话频道，频道多选，自由定制\n" ..
-                        "4、选择需要发送的内容模板序号\n" ..
-                            "！！！注意喊话间隔时间，太频繁被屏蔽就糗了\n" ..
-                                "|cffFF1919！！！因暴雪数据保存机制，填完模板后请至少正常退出一次游戏。让数据保存到本地，小退回人物选择界面或直接重载界面|cff047D00（测试标签页有快捷功能可用）|cffFF1919即可！！!\n" ..
-                                    "|cffFFDC2B---本窗体会自动在前几次载入，之后会在后台静默等待命令。你可以使用命令把他叫出来干活---\n" ..
-                                        "|cffFF1919大脚世界频道与大脚世界频道2[3,4...]互斥，其他频道同理！\n" ..
-                                            "好了，愉快的喊起来吧。不喊了记得回来停掉哟\n" ..
-                                                "|cff5555ff指令介绍：\n" .. "|cffFFDC2B/am /automessage /automsg\n"
-    )
+    Label:SetText("|cff5555ff喊话功能使用介绍：\n" ..
+                      "|cffffffff1、定义喊话模班，本模板旨在存储喊话内容避免每次都需要重新输入\n" ..
+                      "2、设置喊话间隔时间\n" ..
+                      "3、选择喊话频道，频道多选，自由定制\n" ..
+                      "4、选择需要发送的内容模板序号\n" ..
+                      "！！！注意喊话间隔时间，太频繁被屏蔽就糗了\n" ..
+                      "|cffFF1919！！！因暴雪数据保存机制，填完模板后请至少正常退出一次游戏。让数据保存到本地，小退回人物选择界面或直接重载界面|cff047D00（测试标签页有快捷功能可用）|cffFF1919即可！！!\n" ..
+                      "|cffFFDC2B---本窗体会自动在前几次载入，之后会在后台静默等待命令。你可以使用命令把他叫出来干活---\n" ..
+                      "|cffFF1919大脚世界频道与大脚世界频道2[3,4...]互斥，其他频道同理！\n" ..
+                      "好了，愉快的喊起来吧。不喊了记得回来停掉哟\n" ..
+                      "|cff5555ff指令介绍：\n" ..
+                      "|cffFFDC2B/am /automessage /automsg\n")
     container:AddChild(Label)
 end
 local function Draw_test(container)
@@ -878,30 +897,23 @@ local function Draw_test(container)
     -- heading:SetWidth(normal_width - padding)
     Label:SetRelativeWidth(1)
     -- heading:SetColor(0, 120, 255)
-    Label:SetText("|cff5555ff" .. MyAddon.L["reload ui"] .. "：\n\n\n\n\n\n\n\n\n\n\n\n\n.")
+    Label:SetText("|cff5555ff" .. MyAddon.L["reload ui"] ..
+                      "：\n\n\n\n\n\n\n\n\n\n\n\n\n.")
     local reload_btn = AceGUI:Create("Button")
     reload_btn:SetFullWidth(true)
     reload_btn:SetHeight(40)
     reload_btn:SetText(MyAddon.L["reload ui"])
-    --reload_btn:SetRelativeWidth(0.25)
-    reload_btn:SetCallback(
-        "OnClick",
-        function(wideget, event)
-            ReloadUI()
-        end
-    )
+    -- reload_btn:SetRelativeWidth(0.25)
+    reload_btn:SetCallback("OnClick", function(wideget, event) ReloadUI() end)
     local join_channel = AceGUI:Create("Button")
     join_channel:SetFullWidth(true)
     join_channel:SetHeight(30)
     join_channel:SetText(MyAddon.L["join channel"])
     -- join_channel:SetRelativeWidth(0.25)
-    join_channel:SetCallback(
-        "OnClick",
-        function(wideget, event)
-            MyAddon:Join_BigFoot_Channel_1_2_5()
-            MyAddon:Print("join channel runing done")
-        end
-    )
+    join_channel:SetCallback("OnClick", function(wideget, event)
+        MyAddon:Join_BigFoot_Channel_1_2_5()
+        MyAddon:Print("join channel runing done")
+    end)
     container:AddChild(reload_btn)
     container:AddChild(join_channel)
     container:AddChild(Label)
@@ -915,18 +927,18 @@ local function SelectGroup_sender(container, event, group)
     local scrollcontainer = AceGUI:Create("SimpleGroup") -- "InlineGroup" is also good
     -- setscrollframe
     scrollcontainer:SetFullWidth(true)
-    --scrollcontainer:SetFullHeight(true) -- probably?
+    -- scrollcontainer:SetFullHeight(true) -- probably?
     scrollcontainer:SetHeight(MyAddon.height - 200) -- probably?
 
     scrollcontainer:SetLayout("Fill") -- important!
     container:AddChild(scrollcontainer)
     local backframe = AceGUI:Create("ScrollFrame")
     backframe:SetLayout("Flow") -- probably?
-    --backframe:SetFullWidth(true)
-    --backframe:SetFullHeight(true) -- probably?
-    --backframe:SetHeight(MyAddon.height - 200) -- probably?
+    -- backframe:SetFullWidth(true)
+    -- backframe:SetFullHeight(true) -- probably?
+    -- backframe:SetHeight(MyAddon.height - 200) -- probably?
     scrollcontainer:AddChild(backframe)
-    --Draw_sender(backframe)
+    -- Draw_sender(backframe)
     if group == "template" then
         DrawGroup_message_template(backframe)
     else
@@ -939,22 +951,10 @@ local function Draw_sender_tab(container)
     -- Create the TabGroup
     local tabpannel = AceGUI:Create("TabGroup")
     local tab_option = {
-        {
-            text = MyAddon.L["one"],
-            value = "one"
-        },
-        {
-            text = MyAddon.L["two"],
-            value = "two"
-        },
-        {
-            text = MyAddon.L["three"],
-            value = "three"
-        },
-        {
-            text = MyAddon.L["template"],
-            value = "template"
-        }
+        {text = MyAddon.L["one"], value = "one"},
+        {text = MyAddon.L["two"], value = "two"},
+        {text = MyAddon.L["three"], value = "three"},
+        {text = MyAddon.L["template"], value = "template"}
     }
     tabpannel:SetLayout("Flow")
     -- Setup which tabs to show
@@ -981,16 +981,16 @@ local function SelectGroup_outer(container, event, group)
     container:AddChild(scrollcontainer)
     local backframe = AceGUI:Create("ScrollFrame")
     backframe:SetLayout("List") -- probably?
-    --backframe:SetLayout("Flow") -- probably?
-    --scrollcontainer:SetFullWidth(true)
+    -- backframe:SetLayout("Flow") -- probably?
+    -- scrollcontainer:SetFullWidth(true)
     backframe:SetFullHeight(true) -- probably?
     backframe:SetHeight(MyAddon.height - 180) -- probably?
     scrollcontainer:AddChild(backframe)
 
     if group == "message" then
         Draw_sender_tab(backframe)
-    elseif group == "invite" then
-        Draw_invite(backframe)
+    elseif group == "calc" then
+        Draw_calc(backframe)
     elseif group == "help" then
         Draw_help(backframe)
     elseif group == "test" then
@@ -1005,13 +1005,9 @@ function MyAddon:initTabs(container)
     Main_frame:SetTitle(MyAddon.L["AddonName"])
     Main_frame:SetWidth(MyAddon.width)
     Main_frame:SetHeight(MyAddon.height)
-    Main_frame:SetStatusText(MyAddon.L["status"])
-    Main_frame:SetCallback(
-        "OnClose",
-        function(widget)
-            AceGUI:Release(widget)
-        end
-    )
+    Main_frame:SetStatusText(MyAddon.L["author"])
+    Main_frame:SetCallback("OnClose",
+                           function(widget) AceGUI:Release(widget) end)
     tinsert(UISpecialFrames, AutoMessageFrame)
     -- Main_frame:EnableKeyboard(true)
 
@@ -1023,22 +1019,10 @@ function MyAddon:initTabs(container)
     -- Create the TabGroup
     local tabpannel = AceGUI:Create("TabGroup")
     local tab_option = {
-        {
-            text = MyAddon.L["Announce"],
-            value = "message"
-        },
-        {
-            text = MyAddon.L["Invite"],
-            value = "invite"
-        },
-        {
-            text = MyAddon.L["Help"],
-            value = "help"
-        },
-        {
-            text = MyAddon.L["Test"],
-            value = "test"
-        }
+        {text = MyAddon.L["Announce"], value = "message"},
+        {text = MyAddon.L["calc"], value = "calc"},
+        {text = MyAddon.L["Help"], value = "help"},
+        {text = MyAddon.L["Test"], value = "test"}
     }
     tabpannel:SetLayout("Flow")
     -- Setup which tabs to show
@@ -1061,7 +1045,8 @@ function MyAddon:ChatCommand(input)
             MyAddon:initTabs()
         end
     else
-        LibStub("AceConfigCmd-3.0"):HandleCommand("am", "automessage", "automsg", input)
+        LibStub("AceConfigCmd-3.0"):HandleCommand("am", "automessage",
+                                                  "automsg", input)
     end
 end
 function MyAddon:Destory()
@@ -1079,11 +1064,9 @@ function MyAddon:ToggleFrame()
 end
 function MyAddon:Join_BigFoot_Channel_1_2_5()
     local _local = GetLocale()
-    --_local = 'enUS'
+    -- _local = 'enUS'
     local channels = {
-        "大脚世界频道",
-        "大脚世界频道2",
-        "大脚世界频道3",
+        "大脚世界频道", "大脚世界频道2", "大脚世界频道3",
         "大脚世界频道4"
         -- "大脚世界频道5",
         -- "大脚世界频道6",
@@ -1092,7 +1075,7 @@ function MyAddon:Join_BigFoot_Channel_1_2_5()
         -- "大脚世界频道8",
         -- "大脚世界频道9"
     }
-    if _local == "zhCN" then --default
+    if _local == "zhCN" then -- default
     elseif _local == "enUS" then -- rewrite channel here for you country
         channels = {}
     end
@@ -1106,9 +1089,9 @@ function MyAddon:Locale(_local)
     local L = {}
     if _local == "zhCN" or _local == nil then -- defualt
         L["AddonName"] = "自动喊话"
-        --Main tab
+        -- Main tab
         L["Announce"] = "喊话"
-        L["Invite"] = "邀请"
+        L["calc"] = "算账"
         L["Help"] = "帮助"
         L["Test"] = "测试"
         -- Announce tab
@@ -1137,14 +1120,14 @@ function MyAddon:Locale(_local)
         L["reload ui"] = "重载界面"
         L["join channel"] = "加入大脚世界频道1-4"
         L["select a channel"] = "选择一个频道"
-        -- invite module
+        -- calc module
         L["raid person"] = "团队人数"
-        L["status"] = "by 怀旧服 狮心·拾忆重逢 @20191028"
+        L["author"] = "by 怀旧服 狮心·拾忆重逢 @20191028"
     elseif _local == "enUS" then
         L["AddonName"] = "AutoMessage"
-        --Main tab
+        -- Main tab
         L["Announce"] = "Announce"
-        L["Invite"] = "Invite"
+        L["calc"] = "calc"
         L["Help"] = "Help"
         L["Test"] = "Test"
         -- Announce tab
@@ -1164,7 +1147,7 @@ function MyAddon:Locale(_local)
         L["Channel select two"] = "Channel select two"
         L["Channel select three"] = "Channel select three"
         L["select a channel"] = "select a channel"
-        --btn
+        -- btn
         L["send"] = "Send"
         L["stop"] = "Stop"
         L["send all"] = "Send All"
@@ -1173,7 +1156,7 @@ function MyAddon:Locale(_local)
         L["all stoped"] = "Already Stoped All"
         L["reload ui"] = "Reload Ui"
         L["join channel"] = "join channel bigfoot one2four"
-        L["status"] = "by reminiscence service 狮心·拾忆重逢 @20191028"
+        L["author"] = "by reminiscence service 狮心·拾忆重逢 @20191028"
     end
     return L
 end
