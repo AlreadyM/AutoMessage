@@ -1221,10 +1221,10 @@ function MyAddon:WhisperReplay(msg_type, msg,author_1,a,b,author_2,d,e,f,g,h,i,j
     replay_template = MyAddon.db.profile.replay_template
     for i, v in ipairs(replay_template.text) do
         -- MyAddon:Print(v)
-        MyAddon:Print(v)
+        -- MyAddon:Print(v)
         if v==msg then
             send_content = replay_template.replay[i]
-            MyAddon:Print(send_content)
+            -- MyAddon:Print(send_content)
             SendChatMessage(send_content, "WHISPER",nil,author_1)
         end
     end
