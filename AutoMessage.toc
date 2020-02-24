@@ -6,6 +6,7 @@
 ## SavedVariables: AutoMessageDB
 ## OptionalDeps: Ace3
 ## X-Embeds: Ace3
+## RequiredDeps: MessageQueue
 
 AutoMessage.xml
 

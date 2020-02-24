@@ -92,18 +92,18 @@ local defaults = {
             send_channel_money = 1
         },
         replay_template = {
-            text = {
-                '密语一','密语二','密语三','密语四','密语五','密语六',
-            },
-            replay = {
-                '回复一','回复二','回复三','回复四','回复五','回复六'
-            }
-            -- one = {text = '密语一', replay = '回复一'},
-            -- two = {text = '密语二', replay = '回复一'},
-            -- three = {text = '密语三', replay = '回复三'},
-            -- four = {text = '密语四', replay = '回复四'},
-            -- five = {text = '密语五', replay = '回复五'},
-            -- six = {text = '密语六', replay = '回复六'}
+            -- text = {
+            --     '密语一','密语二','密语三','密语四','密语五','密语六',
+            -- },
+            -- replay = {
+            --     '回复一','回复二','回复三','回复四','回复五','回复六'
+            -- }
+            one = {text = '密语一', replay = '回复一'},
+            two = {text = '密语二', replay = '回复二'},
+            three = {text = '密语三', replay = '回复三'},
+            four = {text = '密语四', replay = '回复四'},
+            five = {text = '密语五', replay = '回复五'},
+            six = {text = '密语六', replay = '回复六'}
         }
     }
 }
@@ -180,7 +180,8 @@ local function prepare_send(sender)
     local _sender = sender
     MyAddon[_sender] = sender
     local status = MyAddon.db.profile.message[_sender].send_status -- 状态
-
+    -- MyAddon:Print('status')
+    -- MyAddon:Print(status)
     if status then
         local send_time = MyAddon.db.profile.message[_sender].send_time -- 时间
         local send_template = MyAddon.db.profile.message[_sender].send_template -- 模板
@@ -217,35 +218,41 @@ local function prepare_send(sender)
 
         -- MyAddon:Print("send_content")
         -- MyAddon:Print(send_content)
+        -- 组建消息队列内部方法
+        local function send_yell()
+            MessageQueue.SendChatMessage(send_content, 'yell')
+        end
+        local function send_say()
+            MessageQueue.SendChatMessage(send_content, 'say')
+        end
+        local function send_channel_one()
+            MessageQueue.SendChatMessage(send_content, "CHANNEL", nil, channel_one)
+        end
+        local function send_channel_two()
+            MessageQueue.SendChatMessage(send_content, "CHANNEL", nil, channel_two)
+        end
+        local function send_channel_three()
+            MessageQueue.SendChatMessage(send_content, "CHANNEL", nil, channel_three)
+        end
         -- 往对应的频道发送信息
         if yell then -- 大喊
-            print('yell will be send')
-            SendChatMessage(send_content, "YELL")
-            print('yell send')
-        end
-        if say then -- 说话
-            SendChatMessage(send_content, "SAY")
-        end
-        if guild then -- 工会
+            MessageQueue.Enqueue(send_yell)
+        end if say then -- 说话
+            MessageQueue.Enqueue(send_say)
+        end if guild then -- 工会
             SendChatMessage(send_content, "GUILD")
-        end
-        if raid then -- 团队
+        end if raid then -- 团队
             SendChatMessage(send_content, "RAID")
+        end if channel_one ~= 999 then -- 自选频道1
+            MessageQueue.Enqueue(send_channel_one)
+        end if channel_two ~= 999 then -- 自选频道2
+            MessageQueue.Enqueue(send_channel_two)
+        end if channel_three ~= 999 then -- 自选频道3
+            MessageQueue.Enqueue(send_channel_three)
         end
-        if channel_one ~= 999 then -- 自选频道1
-            SendChatMessage(send_content, "CHANNEL", nil, channel_one)
-        end
-        if channel_two ~= 999 then -- 自选频道2
-            SendChatMessage(send_content, "CHANNEL", nil, channel_two)
-        end
-        if channel_three ~= 999 then -- 自选频道3
-            SendChatMessage(send_content, "CHANNEL", nil, channel_three)
-        end
-        -- MyAddon:Print("发送结束")
-        -- MyAddon:Print("send_time")
+        MyAddon:Print("send_time--"..send_time.."秒")
         MyAddon:ScheduleTimer(function() prepare_send(MyAddon[_sender]) end,
                               send_time)
-        MyAddon:Print(send_time)
     end
 end
 -- draw sender wideget
@@ -326,7 +333,7 @@ local function DrawGroup_message(container)
     time_range:SetLabel(MyAddon.L["time gap"])
     -- time_range:SetWidth(100)
     time_range:SetRelativeWidth(0.5)
-    time_range:SetSliderValues(5, 120, 1)
+    time_range:SetSliderValues(15, 120, 1)
     time_range:SetValue(MyAddon.db.profile.message[MyAddon.current_sender]
                             .send_time)
     time_range:SetCallback("OnValueChanged", function(wideget, event, val)
@@ -493,23 +500,23 @@ end
 local function Draw_replay(container)
     -- container:ReleaseChildren()
     container:SetLayout("Flow")
-    MyAddon:Print("replay module")
+    -- MyAddon:Print("replay module")
 
     local replay_one_text = AceGUI:Create("EditBox")
     replay_one_text:SetLabel('密语一')
-    replay_one_text:SetText(MyAddon.db.profile.replay_template.text[1])
+    replay_one_text:SetText(MyAddon.db.profile.replay_template.one.text)
     replay_one_text:SetRelativeWidth(0.3)
     replay_one_text:SetCallback("OnEnterPressed", function(widget, event, txt)
-        MyAddon.db.profile.replay_template.text[1] = txt
+        MyAddon.db.profile.replay_template.one.text = txt
         -- Draw_calc(container)
     end)
     container:AddChild(replay_one_text)
     local replay_one_replay = AceGUI:Create("EditBox")
     replay_one_replay:SetLabel('回复一')
-    replay_one_replay:SetText(MyAddon.db.profile.replay_template.replay[1])
+    replay_one_replay:SetText(MyAddon.db.profile.replay_template.one.replay)
     replay_one_replay:SetRelativeWidth(0.7)
     replay_one_replay:SetCallback("OnEnterPressed", function(widget, event, txt)
-        MyAddon.db.profile.replay_template.replay[1] = txt
+        MyAddon.db.profile.replay_template.one.replay = txt
         -- Draw_calc(container)
     end)
     container:AddChild(replay_one_replay)
@@ -517,18 +524,18 @@ local function Draw_replay(container)
     local replay_two_text = AceGUI:Create("EditBox")
     replay_two_text:SetRelativeWidth(0.3)
     replay_two_text:SetLabel('密语二')
-    replay_two_text:SetText(MyAddon.db.profile.replay_template.text[2])
-    replay_two_text:SetCallback("OnValueChanged", function(widget, event, txt)
-        MyAddon.db.profile.replay_template.text[2] = txt
+    replay_two_text:SetText(MyAddon.db.profile.replay_template.two.text)
+    replay_two_text:SetCallback("OnEnterPressed", function(widget, event, txt)
+        MyAddon.db.profile.replay_template.two.text = txt
         -- Draw_calc(container)
     end)
     container:AddChild(replay_two_text)
     local replay_two_replay = AceGUI:Create("EditBox")
     replay_two_replay:SetRelativeWidth(0.7)
     replay_two_replay:SetLabel('回复二')
-    replay_two_replay:SetText(MyAddon.db.profile.replay_template.replay[2])
-    replay_two_replay:SetCallback("OnValueChanged", function(widget, event, txt)
-        MyAddon.db.profile.replay_template.replay[2] = txt
+    replay_two_replay:SetText(MyAddon.db.profile.replay_template.two.replay)
+    replay_two_replay:SetCallback("OnEnterPressed", function(widget, event, txt)
+        MyAddon.db.profile.replay_template.two.replay = txt
         -- Draw_calc(container)
     end)
     container:AddChild(replay_two_replay)
@@ -536,19 +543,19 @@ local function Draw_replay(container)
     local replay_three_text = AceGUI:Create("EditBox")
     replay_three_text:SetRelativeWidth(0.3)
     replay_three_text:SetLabel('密语三')
-    replay_three_text:SetText(MyAddon.db.profile.replay_template.text[3])
-    replay_three_text:SetCallback("OnValueChanged", function(widget, event, txt)
-        MyAddon.db.profile.replay_template.text[3] = txt
+    replay_three_text:SetText(MyAddon.db.profile.replay_template.three.text)
+    replay_three_text:SetCallback("OnEnterPressed", function(widget, event, txt)
+        MyAddon.db.profile.replay_template.three.text = txt
         -- Draw_calc(container)
     end)
     container:AddChild(replay_three_text)
     local replay_three_replay = AceGUI:Create("EditBox")
     replay_three_replay:SetRelativeWidth(0.7)
     replay_three_replay:SetLabel('回复三')
-    replay_three_replay:SetText(MyAddon.db.profile.replay_template.replay[3])
-    replay_three_replay:SetCallback("OnValueChanged",
+    replay_three_replay:SetText(MyAddon.db.profile.replay_template.three.replay)
+    replay_three_replay:SetCallback("OnEnterPressed",
                                     function(widget, event, txt)
-        MyAddon.db.profile.replay_template.replay[3] = txt
+        MyAddon.db.profile.replay_template.three.replay = txt
         -- Draw_calc(container)
     end)
     container:AddChild(replay_three_replay)
@@ -556,19 +563,19 @@ local function Draw_replay(container)
     local replay_four_text = AceGUI:Create("EditBox")
     replay_four_text:SetRelativeWidth(0.3)
     replay_four_text:SetLabel('密语四')
-    replay_four_text:SetText(MyAddon.db.profile.replay_template.text[4])
-    replay_four_text:SetCallback("OnValueChanged", function(widget, event, txt)
-        MyAddon.db.profile.replay_template.text[4] = txt
+    replay_four_text:SetText(MyAddon.db.profile.replay_template.four.text)
+    replay_four_text:SetCallback("OnEnterPressed", function(widget, event, txt)
+        MyAddon.db.profile.replay_template.four.text = txt
         -- Draw_calc(container)
     end)
     container:AddChild(replay_four_text)
     local replay_four_replay = AceGUI:Create("EditBox")
     replay_four_replay:SetRelativeWidth(0.7)
     replay_four_replay:SetLabel('回复四')
-    replay_four_replay:SetText(MyAddon.db.profile.replay_template.replay[4])
-    replay_four_replay:SetCallback("OnValueChanged",
+    replay_four_replay:SetText(MyAddon.db.profile.replay_template.four.replay)
+    replay_four_replay:SetCallback("OnEnterPressed",
                                    function(widget, event, txt)
-        MyAddon.db.profile.replay_template.replay[4] = txt
+        MyAddon.db.profile.replay_template.four.replay = txt
         -- Draw_calc(container)
     end)
     container:AddChild(replay_four_replay)
@@ -576,19 +583,19 @@ local function Draw_replay(container)
     local replay_five_text = AceGUI:Create("EditBox")
     replay_five_text:SetRelativeWidth(0.3)
     replay_five_text:SetLabel('密语五')
-    replay_five_text:SetText(MyAddon.db.profile.replay_template.text[5])
-    replay_five_text:SetCallback("OnValueChanged", function(widget, event, txt)
-        MyAddon.db.profile.replay_template.text[5] = txt
+    replay_five_text:SetText(MyAddon.db.profile.replay_template.five.text)
+    replay_five_text:SetCallback("OnEnterPressed", function(widget, event, txt)
+        MyAddon.db.profile.replay_template.five.text = txt
         -- Draw_calc(container)
     end)
     container:AddChild(replay_five_text)
     local replay_five_replay = AceGUI:Create("EditBox")
     replay_five_replay:SetRelativeWidth(0.7)
     replay_five_replay:SetLabel('回复五')
-    replay_five_replay:SetText(MyAddon.db.profile.replay_template.replay[5])
-    replay_five_replay:SetCallback("OnValueChanged",
+    replay_five_replay:SetText(MyAddon.db.profile.replay_template.five.replay)
+    replay_five_replay:SetCallback("OnEnterPressed",
                                    function(widget, event, txt)
-        MyAddon.db.profile.replay_template.replay[5] = txt
+        MyAddon.db.profile.replay_template.five.replay = txt
         -- Draw_calc(container)
     end)
     container:AddChild(replay_five_replay)
@@ -596,25 +603,25 @@ local function Draw_replay(container)
     local replay_six_text = AceGUI:Create("EditBox")
     replay_six_text:SetRelativeWidth(0.3)
     replay_six_text:SetLabel('密语六')
-    replay_six_text:SetText(MyAddon.db.profile.replay_template.text[6])
-    replay_six_text:SetCallback("OnValueChanged", function(widget, event, txt)
-        MyAddon.db.profile.replay_template.text[6] = txt
+    replay_six_text:SetText(MyAddon.db.profile.replay_template.six.text)
+    replay_six_text:SetCallback("OnEnterPressed", function(widget, event, txt)
+        MyAddon.db.profile.replay_template.six.text = txt
         -- Draw_calc(container)
     end)
     container:AddChild(replay_six_text)
     local replay_six_replay = AceGUI:Create("EditBox")
     replay_six_replay:SetRelativeWidth(0.7)
     replay_six_replay:SetLabel('回复六')
-    replay_six_replay:SetText(MyAddon.db.profile.replay_template.replay[6])
-    replay_six_replay:SetCallback("OnValueChanged", function(widget, event, txt)
-        MyAddon.db.profile.replay_template.replay[6] = txt
+    replay_six_replay:SetText(MyAddon.db.profile.replay_template.six.replay)
+    replay_six_replay:SetCallback("OnEnterPressed", function(widget, event, txt)
+        MyAddon.db.profile.replay_template.six.replay = txt
         -- Draw_calc(container)
     end)
     container:AddChild(replay_six_replay)
 
 end
 function calc_one_count()
-    MyAddon:Print("ssss")
+    -- MyAddon:Print("ssss")
     local person = MyAddon.db.profile.money_raid_calculate.person +
                        MyAddon.db.profile.money_raid_calculate.person_base
     if MyAddon.db.profile.money_raid_calculate.rl then
@@ -656,7 +663,7 @@ local function Draw_calc(container)
 
     container:ReleaseChildren()
     container:SetLayout("Flow")
-    MyAddon:Print("calc module")
+    -- MyAddon:Print("calc module")
 
     local money_input = AceGUI:Create("EditBox")
     money_input:SetLabel("可分配金币")
@@ -1064,9 +1071,18 @@ local function Draw_test(container)
         MyAddon:Join_BigFoot_Channel_1_2_5()
         MyAddon:Print("join channel runing done")
     end)
+    local single_loop_btn = AceGUI:Create('Button')
+    single_loop_btn:SetFullWidth(true)
+    single_loop_btn:SetHeight(30)
+    single_loop_btn:SetText('单个循环汉化测试')
+    -- join_channel:SetRelativeWidth(0.25)
+    single_loop_btn:SetCallback("OnClick", function(wideget, event)
+        loop_msg()
+    end)
     container:AddChild(reload_btn)
     container:AddChild(join_channel)
     container:AddChild(Label)
+    container:AddChild(single_loop_btn)
 end
 -- Callback function for OnGroupSelected
 
@@ -1202,7 +1218,8 @@ function MyAddon:ChatCommand(input)
                                                   "automsg", input)
     end
 end
-function MyAddon:WhisperReplay(msg_type, msg,author_1,a,b,author_2,d,e,f,g,h,i,j,k)
+function MyAddon:WhisperReplay(msg_type, msg, author_1, a, b, author_2, d, e, f,
+                               g, h, i, j, k)
     -- MyAddon:Print('----')
     -- MyAddon:Print(msg_type)
     -- MyAddon:Print(msg)
@@ -1218,16 +1235,33 @@ function MyAddon:WhisperReplay(msg_type, msg,author_1,a,b,author_2,d,e,f,g,h,i,j
     -- MyAddon:Print(i)
     -- MyAddon:Print(j)
     -- MyAddon:Print(k)
-    replay_template = MyAddon.db.profile.replay_template
-    for i, v in ipairs(replay_template.text) do
-        -- MyAddon:Print(v)
-        -- MyAddon:Print(v)
-        if v==msg then
-            send_content = replay_template.replay[i]
-            -- MyAddon:Print(send_content)
-            SendChatMessage(send_content, "WHISPER",nil,author_1)
+    player_name = UnitName("player")
+    -- MyAddon:Print(player_name)
+    if not (player_name == author_2) then
+        replay_template = MyAddon.db.profile.replay_template
+        for i, v in pairs(replay_template) do
+            -- MyAddon:Print(v)
+            -- MyAddon:Print(v.text)
+            if string.find(msg, v.text) then
+                send_content = v.replay
+                -- MyAddon:Print(send_content)
+                SendChatMessage(send_content, "WHISPER", nil, author_2)
+            end
         end
     end
+end
+function loop_msg()
+    -- SendChatMessage('123', 'say')
+    MessageQueue.SendChatMessage('123', 'say')
+    -- MessageQueue.SendChatMessage('123', 'yell')
+    MyAddon:Print("single loop action")
+    MessageQueue.Enqueue(sendMSG)
+    MyAddon:ScheduleTimer(function() loop_msg() end, 5)
+end
+function sendMSG()
+    local text_msg ='可喜可贺又增加很多服务器了。大家不用再拥挤啦，详情请查询官网最新公告。'
+    MyAddon:Print('inside fun')
+    MessageQueue.SendChatMessage(text_msg, 'channel',nil,1)
 end
 
 function MyAddon:Destory()
