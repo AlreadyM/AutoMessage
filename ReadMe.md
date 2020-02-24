@@ -7,7 +7,7 @@
 前期准备:  
 1：下载automessage messagequeue 释放到addon 目录，下载autohotkey并安装  
 2: 点击启动messagequeue下的PixelTrigger脚本启动ahk功能，作为后备。默认每条消息间隔5-8秒  
-3: 游戏内打开automessage，配置相关信息模板 点击发送。  
+3: 游戏内打开automessage，配置相关信息模板 点击发送 。发送期间游戏需要全屏运行，小窗口不能正确发送。  
 ps：机制为automessage 为messagequeue 提供消息队列，messagequeue监测ahk的鼠标点击事件并在游戏内触发后发送消息到对应频道。  
 ps2：已添加依赖工具messagequeue，autohotkey。本人不保证所有插件无毒，只保证在本地址下载的automessage 包内无恶意代码。  
 AutoMessage Plugin Use Guide  
