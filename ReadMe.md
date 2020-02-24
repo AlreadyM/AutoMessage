@@ -1,10 +1,15 @@
 这是一个魔兽世界自动喊话界面版插件，目的是为了方便组队的时候间隔时间发送组队信息至公共频道。
 鉴于暴雪粑粑决定将sendchatmessage 方法设置为私有方法，不再可以自由使用。现采用中间件的方式来发送消息，现版本插件喊话依赖于messagequeue，请自行下载释放到addon目录；另还需要配合AutoHotKey使用。
+！！！请勿滥用
+！！！请勿滥用
+！！！请勿滥用
+
 前期准备:
 1,下载automessage messagequeue 释放只addon 目录，下载autohotkey并安装
 2，点击启动messagequeue下的PixelTrigger脚本启动ahk功能，作为后备。默认每条消息间隔5-8秒
 3，游戏内打开automessage，配置相关信息模板 点击发送。
 ps：机制为automessage 为messagequeue 提供消息队列，messagequeue监测ahk的鼠标点击事件并在游戏内触发后发送消息到对应频道。
+ps2：已添加依赖工具messagequeue，autohotkey。本人不保证所有插件无毒，只保证在本地址下载的automessage 包内无恶意代码。
 AutoMessage Plugin Use Guide
 ZN-CH
     功能介绍：
